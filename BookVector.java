@@ -2,18 +2,34 @@ public class BookVector {
     private Book[] data;
     private int size;
 
-    public BookVector() {
-        data = new Book[5];
+    public BookVector() throws InvalidCapacityException {
+        this(5);
+    }
+
+    public BookVector(int capacity) throws InvalidCapacityException {
+        if (capacity <= 0) {
+            throw new InvalidCapacityException("Початкова місткість повинна бути більше 0");
+        }
+
+        data = new Book[capacity];
         size = 0;
     }
 
     public void add(Book book) {
+        if (book == null) {
+            throw new NullBookException("Неможливо додати null у Vector");
+        }
+
         ensureCapacity();
         data[size] = book;
         size++;
     }
 
     public void addFirst(Book book) {
+        if (book == null) {
+            throw new NullBookException("Неможливо додати null у Vector");
+        }
+
         ensureCapacity();
 
         for (int i = size; i > 0; i--) {
@@ -25,8 +41,12 @@ public class BookVector {
     }
 
     public void add(int index, Book book) {
+        if (book == null) {
+            throw new NullBookException("Неможливо додати null у Vector");
+        }
+
         if (index < 0 || index > size) {
-            throw new IndexOutOfBoundsException("Невірний індекс: " + index);
+            throw new InvalidIndexException("Невірний індекс для вставки: " + index);
         }
 
         ensureCapacity();
@@ -39,12 +59,20 @@ public class BookVector {
         size++;
     }
 
-    public Book get(int index) {
+    public Book get(int index) throws EmptyVectorException {
+        if (size == 0) {
+            throw new EmptyVectorException("Vector порожній, неможливо отримати елемент");
+        }
+
         checkIndex(index);
         return data[index];
     }
 
-    public Book remove(int index) {
+    public Book remove(int index) throws EmptyVectorException {
+        if (size == 0) {
+            throw new EmptyVectorException("Vector порожній, неможливо видалити елемент");
+        }
+
         checkIndex(index);
 
         Book removed = data[index];
@@ -60,7 +88,14 @@ public class BookVector {
     }
 
     public void clear() {
-        data = new Book[5];
+        if (data == null) {
+            throw new VectorStateException("Внутрішній масив не ініціалізований");
+        }
+
+        for (int i = 0; i < size; i++) {
+            data[i] = null;
+        }
+
         size = 0;
     }
 
@@ -69,10 +104,17 @@ public class BookVector {
     }
 
     public int capacity() {
+        if (data == null) {
+            throw new VectorStateException("Внутрішній масив не ініціалізований");
+        }
         return data.length;
     }
 
     private void ensureCapacity() {
+        if (data == null) {
+            throw new VectorStateException("Внутрішній масив не ініціалізований");
+        }
+
         if (size >= data.length) {
             Book[] newData = new Book[data.length * 2];
 
@@ -86,7 +128,7 @@ public class BookVector {
 
     private void checkIndex(int index) {
         if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Невірний індекс: " + index);
+            throw new InvalidIndexException("Невірний індекс: " + index);
         }
     }
 
